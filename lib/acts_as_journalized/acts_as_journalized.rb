@@ -38,7 +38,7 @@ module Redmine
         end
 
         def excepted_attributes
-          self.class.journalized_attributes[:excepted_attributes]
+          self.class.journalized_options[:excepted_attributes]
         end
 
         def journalize_attributes(user = User.current, notes = '')
