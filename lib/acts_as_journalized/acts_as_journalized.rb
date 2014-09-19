@@ -18,7 +18,7 @@ module Redmine
 
           send :include, Redmine::Acts::Journalized::InstanceMethods
 
-          after_update :journalize_attributes
+          before_update :journalize_attributes
         end
       end
 
@@ -27,25 +27,18 @@ module Redmine
           base.extend ClassMethods
         end
 
-        def init_journal(user = User.current, notes = '')
-          journal = Journal.new(journalized: self, user: user, notes: notes)
-          yield journal
-          journal.save
-        end
-
         def excepted_attributes
           self.class.journalized_attributes[:excepted_attributes]
         end
 
         def journalize_attributes(user = User.current, notes = '')
-          init_journal(user, notes) do |journal|
-            changes.except(*excepted_attributes).each_pair do |column, values|
-              journal.details.build(property: 'attr', prop_key: column, old_value: values.first, value: values.last)
-            end
+          @journal ||= journals.build(user: user, notes: notes)
+          changes.except(*excepted_attributes).each_pair do |column, values|
+            @journal.details.build(property: 'attr', prop_key: column, old_value: values.first, value: values.last)
           end
         end
 
-        private :journalize_attributes, :init_journal, :excepted_attributes
+        private :journalize_attributes, :excepted_attributes
 
         module ClassMethods; end
       end
