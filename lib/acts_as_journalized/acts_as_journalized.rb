@@ -42,7 +42,7 @@ module Redmine
         end
 
         def journalize_attributes(user = User.current, notes = '')
-          init_journal(user: user, notes: notes)
+          init_journal(user, notes)
           changes.except(*excepted_attributes).each_pair do |column, values|
             @journal.details.build(property: 'attr', prop_key: column, old_value: values.first, value: values.last)
           end
