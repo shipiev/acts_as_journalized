@@ -10,17 +10,17 @@ module Redmine
         def acts_as_journalized(options = {})
           cattr_accessor :journalized_options
 
-          options.assert_valid_keys(:excepted_attributes, :relation_name, :relation_options)
+          options.assert_valid_keys(:excepted_attributes, :name, :find_options)
           self.journalized_options = {
               excepted_attributes: [:updated_at, :updated_on],
-              relation_name: 'journals',
-              relation_options: {}
+              name: 'journals',
+              find_options: {}
           }.merge(options)
 
-          relation_options = {class_name: 'Journal', as: :journalized, dependent: :destroy}.
-              merge(self.journalized_options[:relation_options])
+          find_options = {class_name: 'Journal', as: :journalized, dependent: :destroy}.
+              merge(self.journalized_options[:find_options])
 
-          has_many self.journalized_options[:relation_name].to_sym, relation_options
+          has_many self.journalized_options[:name].to_sym, find_options
 
           send :include, Redmine::Acts::Journalized::InstanceMethods
 
@@ -34,7 +34,7 @@ module Redmine
         end
 
         def init_journal(user = User.current, notes = '')
-          @journal ||= send(self.journalized_options[:relation_name]).build(user: user, notes: notes)
+          @journal ||= send(self.journalized_options[:name]).build(user: user, notes: notes)
         end
 
         def excepted_attributes
