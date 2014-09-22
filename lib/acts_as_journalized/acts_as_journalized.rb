@@ -1,10 +1,7 @@
 module Redmine
   module Acts
     module Journalized
-
-      def self.included(base)
-        base.extend ClassMethods
-      end
+      extend ActiveSupport::Concern
 
       module ClassMethods
         def acts_as_journalized(options = {})
@@ -22,35 +19,10 @@ module Redmine
 
           has_many self.journalized_options[:name].to_sym, find_options
 
-          send :include, Redmine::Acts::Journalized::InstanceMethods
+          send :include, Redmine::Acts::Journalized::Callbacks
 
           before_update :journalize_attributes
         end
-      end
-
-      module InstanceMethods
-        def self.included(base)
-          base.extend ClassMethods
-        end
-
-        def init_journal(user = User.current, notes = '')
-          @journal ||= send(self.journalized_options[:name]).build(user: user, notes: notes)
-        end
-
-        def excepted_attributes
-          self.class.journalized_options[:excepted_attributes]
-        end
-
-        def journalize_attributes(user = User.current, notes = '')
-          init_journal(user, notes)
-          changes.except(*excepted_attributes).each_pair do |column, values|
-            @journal.details.build(property: 'attr', prop_key: column, old_value: values.first, value: values.last)
-          end
-        end
-
-        private :journalize_attributes, :excepted_attributes
-
-        module ClassMethods; end
       end
 
     end
