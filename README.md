@@ -20,19 +20,19 @@ Or install it yourself as:
 
 ### Model
 
-class MyModel < ActiveRecord::Base
-    ...
-    acts_as_journalized
-    ...
-end
+    class MyModel < ActiveRecord::Base
+        ...
+        acts_as_journalized
+        ...
+    end
 
 Or
 
-class MyModel < ActiveRecord::Base
-    ...
-    acts_as_journalized name: 'journals', excepted_attributes: [:updated_at, :updated_on], find_options: {}
-    ...
-end
+    class MyModel < ActiveRecord::Base
+        ...
+        acts_as_journalized name: 'journals', excepted_attributes: [:updated_at, :updated_on], find_options: {}
+        ...
+    end
 
 ## Contributing
 
