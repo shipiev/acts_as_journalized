@@ -7,7 +7,7 @@ module Redmine
         def acts_as_journalized(options = {})
           cattr_accessor :journalized_options
 
-          options.assert_valid_keys(:excepted_attributes, :name, :find_options)
+          options.assert_valid_keys(:excepted_attributes, :name, :scope, :find_options)
           self.journalized_options = {
               excepted_attributes: [:updated_at, :updated_on],
               name: 'journals',
