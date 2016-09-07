@@ -11,13 +11,14 @@ module Redmine
           self.journalized_options = {
               excepted_attributes: [:updated_at, :updated_on],
               name: 'journals',
+              scope: -> { all },
               find_options: {}
           }.merge(options)
 
           find_options = {class_name: 'Journal', as: :journalized, dependent: :destroy}.
               merge(self.journalized_options[:find_options])
 
-          has_many self.journalized_options[:name].to_sym, find_options
+          has_many self.journalized_options[:name].to_sym, self.journalized_options[:scope], find_options
 
           send :include, Redmine::Acts::Journalized::Callbacks
 
