@@ -3,26 +3,47 @@ module Redmine
     module Journalized
       extend ActiveSupport::Concern
 
+      def journalized_attribute_names
+        self.class.journalized_attribute_names
+      end
+
       module ClassMethods
         def acts_as_journalized(options = {})
-          cattr_accessor :journalized_options
+          cattr_accessor :journalized_options, :journalized_attribute_names
 
-          options.assert_valid_keys(:excepted_attributes, :name, :scope, :find_options)
-          self.journalized_options = {
-              excepted_attributes: [:updated_at, :updated_on],
-              name: 'journals',
-              scope: -> { all },
-              find_options: {}
-          }.merge(options)
+          options.assert_valid_keys(
+              :excepted_attributes,
+              :name,
+              :scope,
+              :find_options
+          )
 
-          find_options = {class_name: 'Journal', as: :journalized, dependent: :destroy}.
-              merge(self.journalized_options[:find_options])
+          excepted_attributes =
+              options.delete(:excepted_attributes) || %w(id updated_at updated_on)
 
-          has_many self.journalized_options[:name].to_sym, self.journalized_options[:scope], find_options
+          self.journalized_attribute_names = column_names - excepted_attributes
+
+          self.journalized_options =
+              {
+                  name: 'journals',
+                  scope: -> { all },
+                  find_options: {}
+              }.merge(options)
+
+          find_options =
+              {
+                  class_name: 'Journal',
+                  as: :journalized,
+                  dependent: :destroy
+              }.merge(journalized_options[:find_options])
 
           send :include, Redmine::Acts::Journalized::Callbacks
 
-          before_update :journalize_attributes
+          has_many journalized_options[:name].to_sym,
+                   journalized_options[:scope],
+                   find_options
+
+          after_save :create_journal
         end
       end
 

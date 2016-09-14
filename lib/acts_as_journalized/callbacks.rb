@@ -5,23 +5,26 @@ module Redmine
         extend ActiveSupport::Concern
 
         def init_journal(user = User.current, notes = '')
-          @journal ||= send(self.journalized_options[:name]).build(user: user, notes: notes)
+          @journal ||= Journal.new(journalized: self, user: user, notes: notes)
         end
 
-        def excepted_attributes
-          self.class.journalized_options[:excepted_attributes]
-        end
-
-        def journalize_attributes(user = User.current, notes = '')
-          init_journal(user, notes)
-          changes.except(*excepted_attributes).each_pair do |column, values|
-            @journal.details.build(property: 'attr', prop_key: column, old_value: values.first, value: values.last)
+        def create_journal
+          if @journal
+            @journal.save
+          else
+            journalized_changes =
+                changes.slice(
+                    *self.class.journalized_attribute_names
+                )
+            if journalized_changes.present?
+              init_journal
+              journalized_changes.each_pair do |column, values|
+                @journal.details.build(property: 'attr', prop_key: column, old_value: values.first, value: values.last)
+              end
+              @journal.save
+            end
           end
         end
-
-        private :journalize_attributes, :excepted_attributes
-
-        module ClassMethods; end
       end
     end
   end
