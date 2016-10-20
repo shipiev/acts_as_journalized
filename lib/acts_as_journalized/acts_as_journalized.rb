@@ -43,7 +43,8 @@ module Redmine
                    journalized_options[:scope],
                    find_options
 
-          after_save :create_journal
+          after_create :create_journal_on_create
+          after_update :create_journal_on_update
         end
       end
 

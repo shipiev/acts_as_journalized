@@ -8,8 +8,14 @@ module Redmine
           @journal ||= Journal.new(journalized: self, user: user, notes: notes)
         end
 
-        def create_journal
+        def create_journal_on_create
           if @journal
+            @journal.save
+          end
+        end
+
+        def create_journal_on_update
+          if @journal && @journal.changed?
             @journal.save
           else
             journalized_changes =
