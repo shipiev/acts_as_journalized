@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Roman Shipiev']
   spec.email         = ['roman@shipiev.pro']
   spec.summary       = %q{Plug-in for Redmine}
-  spec.description   = %q{Used for tracking and recording changes in model attributes}
-  spec.homepage      = 'https://github.com/rubynovich/acts_as_journalized'
+  spec.description   = %q{Plug-in uses for tracking and recording changes of attributes in model}
+  spec.homepage      = 'https://github.com/shipiev/acts_as_journalized'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0")
